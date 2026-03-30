@@ -1,0 +1,601 @@
+/* ===============================================
+   SMK NEGERI 3 BALIGE — Admin Panel CSS
+   Tambahkan ke file: custom.css (di bawah semua style yang ada)
+   Prefix: smk-admin-
+   =============================================== */
+
+/* ══════════════════════════════════════════════
+   ADMIN LAYOUT
+══════════════════════════════════════════════ */
+.smk-admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6fb;
+  font-family: "Poppins", sans-serif;
+}
+
+.smk-admin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 150;
+}
+
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+.smk-admin-sidebar {
+  width: 240px;
+  background: #0f2244;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 200;
+  transition: transform 0.25s ease;
+}
+
+.smk-admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.smk-admin-brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.smk-admin-brand-text strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.smk-admin-brand-text span {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.smk-admin-nav {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+}
+
+.smk-admin-nav-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 12px 10px 6px;
+}
+
+.smk-admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+}
+
+.smk-admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.smk-admin-nav-item.active {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(90, 130, 242, 0.35);
+}
+
+.smk-admin-nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.smk-admin-sidebar-footer {
+  padding: 12px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.smk-admin-logout {
+  color: rgba(255, 100, 100, 0.7) !important;
+}
+
+.smk-admin-logout:hover {
+  background: rgba(255, 100, 100, 0.1) !important;
+  color: #ff6464 !important;
+}
+
+/* ══════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════ */
+.smk-admin-main {
+  flex: 1;
+  margin-left: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════════ */
+.smk-admin-topbar {
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #e5e9f2;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.smk-admin-burger {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-main);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: none;
+}
+
+.smk-admin-topbar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.smk-admin-topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.smk-admin-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #f4f6fb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.smk-admin-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.smk-admin-content {
+  flex: 1;
+  padding: 28px;
+}
+
+/* ══════════════════════════════════════════════
+   STATS ROW
+══════════════════════════════════════════════ */
+.smk-admin-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.smk-admin-stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 12px rgba(26, 58, 107, 0.07);
+  border: 1px solid #e5e9f2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.smk-admin-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.smk-admin-stat-blue   { background: #eff6ff; }
+.smk-admin-stat-teal   { background: #f0fdfa; }
+.smk-admin-stat-purple { background: #faf5ff; }
+.smk-admin-stat-orange { background: #fff7ed; }
+.smk-admin-stat-gold   { background: #fefce8; }
+.smk-admin-stat-navy   { background: #eff6ff; }
+
+.smk-admin-stat-val {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.smk-admin-stat-lbl {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-top: 3px;
+}
+
+/* ══════════════════════════════════════════════
+   CARD
+══════════════════════════════════════════════ */
+.smk-admin-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(26, 58, 107, 0.07);
+  border: 1px solid #e5e9f2;
+  margin-bottom: 24px;
+}
+
+.smk-admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e5e9f2;
+}
+
+.smk-admin-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.smk-admin-card-sub {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-top: 2px;
+}
+
+.smk-admin-card-body {
+  padding: 22px;
+}
+
+.smk-admin-btn-sm {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+}
+
+/* ══════════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════════ */
+.smk-admin-table-wrap {
+  overflow-x: auto;
+}
+
+.smk-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.smk-admin-table thead tr {
+  background: #f4f6fb;
+  border-bottom: 1px solid #e5e9f2;
+}
+
+.smk-admin-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-gray);
+  white-space: nowrap;
+}
+
+.smk-admin-table td {
+  padding: 13px 16px;
+  font-size: 13px;
+  color: var(--text-main);
+  border-bottom: 1px solid #e5e9f2;
+  vertical-align: middle;
+}
+
+.smk-admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.smk-admin-table tbody tr:hover {
+  background: #f8faff;
+}
+
+.smk-admin-table-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-gray);
+  font-size: 14px;
+}
+
+.smk-admin-td-truncate {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Thumbnail */
+.smk-admin-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: #f4f6fb;
+  border: 1px solid #e5e9f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.smk-admin-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ══════════════════════════════════════════════
+   ACTION BUTTONS
+══════════════════════════════════════════════ */
+.smk-admin-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.smk-admin-btn-edit,
+.smk-admin-btn-delete {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.smk-admin-btn-edit   { background: #fef3c7; color: #92400e; }
+.smk-admin-btn-delete { background: #fee2e2; color: #991b1b; }
+
+.smk-admin-btn-edit:hover,
+.smk-admin-btn-delete:hover { opacity: 0.8; }
+
+/* ══════════════════════════════════════════════
+   BADGE
+══════════════════════════════════════════════ */
+.smk-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.smk-admin-badge-gold   { background: #fef3c7; color: #92400e; }
+.smk-admin-badge-silver { background: #f1f5f9; color: #475569; }
+.smk-admin-badge-bronze { background: #fde8d8; color: #9a3412; }
+.smk-admin-badge-blue   { background: #eff6ff; color: #1e40af; }
+.smk-admin-badge-red    { background: #fee2e2; color: #991b1b; }
+
+/* ══════════════════════════════════════════════
+   MODAL override for admin
+══════════════════════════════════════════════ */
+.smk-admin-modal {
+  width: 520px;
+  max-width: 95%;
+}
+
+/* ══════════════════════════════════════════════
+   UPLOAD PREVIEW
+══════════════════════════════════════════════ */
+.smk-admin-upload-preview {
+  max-width: 200px;
+  border-radius: 10px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e9f2;
+}
+
+.smk-admin-upload-preview img {
+  width: 100%;
+  display: block;
+}
+
+/* ══════════════════════════════════════════════
+   SPINNER
+══════════════════════════════════════════════ */
+.smk-admin-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: smk-spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.smk-admin-spinner-sm {
+  width: 13px;
+  height: 13px;
+}
+
+@keyframes smk-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════════
+   DASHBOARD WIDGETS
+══════════════════════════════════════════════ */
+.smk-admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.smk-admin-quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.smk-admin-quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: 10px;
+  background: #f4f6fb;
+  border: 1px solid #e5e9f2;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-gray);
+  text-align: center;
+  text-decoration: none;
+}
+
+.smk-admin-quick-item:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: #eef2ff;
+}
+
+.smk-admin-quick-icon { font-size: 22px; }
+
+.smk-admin-info-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.smk-admin-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e5e9f2;
+}
+
+.smk-admin-info-item:last-child { border-bottom: none; }
+
+.smk-admin-info-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.smk-info-blue { background: var(--blue); }
+.smk-info-gold { background: var(--gold); }
+
+.smk-admin-info-text { font-size: 13px; }
+.smk-admin-info-sub  { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
+.smk-admin-info-sub code { background: #f4f6fb; padding: 1px 6px; border-radius: 4px; font-size: 11px; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .smk-admin-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .smk-admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .smk-admin-main {
+    margin-left: 0;
+  }
+
+  .smk-admin-burger {
+    display: block;
+  }
+
+  .smk-admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .smk-admin-stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .smk-admin-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .smk-admin-content {
+    padding: 16px;
+  }
+}
