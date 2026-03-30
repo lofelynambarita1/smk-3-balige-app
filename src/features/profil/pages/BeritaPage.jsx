@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import ProfilLayout from "../../../profil/layouts/ProfilLayout";
+import ProfilLayout from "../layouts/ProfilLayout";
 
 // ══════════════════════════════════════════════
 // HOOK: deteksi elemen masuk viewport

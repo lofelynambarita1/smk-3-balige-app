@@ -5,7 +5,11 @@ export default function ProfilLayout({ children }) {
   return (
     <>
       <Navbar />
-      <main className="smk-main">{children}</main>
+
+      <main style={{ minHeight: "100vh" }}>
+        {children}
+      </main>
+
       <Footer />
     </>
   );
