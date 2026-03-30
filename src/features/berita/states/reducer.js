@@ -1,26 +1,37 @@
+// src/features/berita/states/reducer.js
 import { BeritaActionType } from "./action";
 
-const initialState = {
-  berita: [],
-  agenda: [],
-  pengumuman: [],
-  loading: false,
-};
-
-export default function beritaReducer(state = initialState, action) {
+export function beritaReducer(state = [], action) {
   switch (action.type) {
     case BeritaActionType.SET_BERITA:
-      return { ...state, berita: action.payload };
+      return action.payload;
+    default:
+      return state;
+  }
+}
 
+export function agendaReducer(state = [], action) {
+  switch (action.type) {
     case BeritaActionType.SET_AGENDA:
-      return { ...state, agenda: action.payload };
+      return action.payload;
+    default:
+      return state;
+  }
+}
 
+export function pengumumanReducer(state = [], action) {
+  switch (action.type) {
     case BeritaActionType.SET_PENGUMUMAN:
-      return { ...state, pengumuman: action.payload };
+      return action.payload;
+    default:
+      return state;
+  }
+}
 
+export function beritaLoadingReducer(state = false, action) {
+  switch (action.type) {
     case BeritaActionType.SET_BERITA_LOADING:
-      return { ...state, loading: action.payload };
-
+      return action.payload;
     default:
       return state;
   }

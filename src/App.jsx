@@ -1,29 +1,49 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Provider } from "react-redux";
-import store from "./store";
 
-import Navbar from "./features/profil/components/NavbarComponent";
-import Footer from "./features/profil/components/FooterComponent";
-
-import BerandaPage from "./features/profil/pages/BerandaPage";
-import ProfilPage from "./features/profil/pages/ProfilPage";
+// Public pages
+import BerandaPage    from "./features/profil/pages/BerandaPage";
+import BeritaPage     from "./features/profil/pages/BeritaPage";
 import PortofolioPage from "./features/profil/pages/PortofolioPage";
+import ProfilPage     from "./features/profil/pages/ProfilPage";
+
+// Admin pages
+import AdminDashboardPage from "./features/admin/pages/AdminDashboardPage";
+import AdminBeritaPage    from "./features/admin/pages/AdminBeritaPage";
+import { AdminSejarahPage } from "./features/admin/pages/AdminSejarahPage";
+import {
+  AdminVisiMisiPage,
+  AdminStrukturPage,
+  AdminProgramPage,
+} from "./features/admin/pages/AdminVisiMisiStrukturProgramPage";
+import {
+  AdminFasilitasPage,
+  AdminPrestasiPage,
+  AdminMitraPage,
+} from "./features/admin/pages/AdminFasilitasPrestasiMitraPage";
 
 function App() {
   return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <Navbar />
+    <BrowserRouter>
+      <Routes>
+        {/* ── Public ── */}
+        <Route path="/"           element={<BerandaPage />} />
+        <Route path="/berita"     element={<BeritaPage />} />
+        <Route path="/profil"     element={<ProfilPage />} />
+        <Route path="/portofolio" element={<PortofolioPage />} />
 
-        <Routes>
-          <Route path="/" element={<BerandaPage />} />
-          <Route path="/profil" element={<ProfilPage />} />
-          <Route path="/portofolio" element={<PortofolioPage />} />
-        </Routes>
-
-        <Footer />
-      </BrowserRouter>
-    </Provider>
+        {/* ── Admin ── */}
+        <Route path="/admin"           element={<AdminDashboardPage />} />
+        <Route path="/admin/berita"    element={<AdminBeritaPage />} />
+        <Route path="/admin/sejarah"   element={<AdminSejarahPage />} />
+        <Route path="/admin/visi-misi" element={<AdminVisiMisiPage />} />
+        <Route path="/admin/struktur"  element={<AdminStrukturPage />} />
+        <Route path="/admin/program"   element={<AdminProgramPage />} />
+        <Route path="/admin/fasilitas" element={<AdminFasilitasPage />} />
+        <Route path="/admin/prestasi"  element={<AdminPrestasiPage />} />
+        <Route path="/admin/mitra"     element={<AdminMitraPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

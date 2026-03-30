@@ -1,11 +1,10 @@
-// src/features/admin/pages/AdminDashboardPage.jsx — UPDATED
-// Menambahkan Berita & Informasi ke quick actions dan stats
+// src/features/admin/pages/AdminDashboardPage.jsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminStatCard } from "../components/AdminComponents";
-import { asyncLoadAllProfilData } from "../../berita/states/action";
+import { asyncLoadAllProfilData } from "../../profil/states/action";
 import { asyncLoadAllBeritaData } from "../../berita/states/action";
 
 const quickActions = [
@@ -21,16 +20,13 @@ const quickActions = [
 
 export default function AdminDashboardPage() {
   const dispatch   = useDispatch();
-  const sejarah    = useSelector((s) => s.sejarahIdentitas);
-  const visiMisi   = useSelector((s) => s.visiMisi);
-  const program    = useSelector((s) => s.programKeahlian);
-  const fasilitas  = useSelector((s) => s.fasilitas);
-  const prestasi   = useSelector((s) => s.prestasi);
-  const mitra      = useSelector((s) => s.mitraKerjasama);
-  const berita     = useSelector((s) => s.berita);
-  const agenda     = useSelector((s) => s.agenda);
-  const pengumuman = useSelector((s) => s.pengumuman);
-  const loading    = useSelector((s) => s.profilLoading);
+  const program    = useSelector((s) => s.programKeahlian || []);
+  const fasilitas  = useSelector((s) => s.fasilitas       || []);
+  const prestasi   = useSelector((s) => s.prestasi        || []);
+  const mitra      = useSelector((s) => s.mitraKerjasama  || []);
+  const berita     = useSelector((s) => s.berita          || []);
+  const agenda     = useSelector((s) => s.agenda          || []);
+  const pengumuman = useSelector((s) => s.pengumuman      || []);
 
   useEffect(() => {
     dispatch(asyncLoadAllProfilData());
@@ -41,12 +37,12 @@ export default function AdminDashboardPage() {
     <AdminLayout title="Dashboard">
       {/* STATS */}
       <div className="smk-admin-stats-row">
-        <AdminStatCard icon="📰" value={berita.length}    label="Total Berita"        color="blue"   />
-        <AdminStatCard icon="📅" value={agenda.length}    label="Agenda"              color="teal"   />
-        <AdminStatCard icon="📢" value={pengumuman.length}label="Pengumuman"           color="purple" />
-        <AdminStatCard icon="🎓" value={program.length}   label="Program Keahlian"    color="orange" />
-        <AdminStatCard icon="🏆" value={prestasi.length}  label="Prestasi"            color="gold"   />
-        <AdminStatCard icon="🤝" value={mitra.length}     label="Mitra Kerjasama"     color="navy"   />
+        <AdminStatCard icon="📰" value={berita.length}     label="Total Berita"     color="blue"   />
+        <AdminStatCard icon="📅" value={agenda.length}     label="Agenda"           color="teal"   />
+        <AdminStatCard icon="📢" value={pengumuman.length} label="Pengumuman"       color="purple" />
+        <AdminStatCard icon="🎓" value={program.length}    label="Program Keahlian" color="orange" />
+        <AdminStatCard icon="🏆" value={prestasi.length}   label="Prestasi"         color="gold"   />
+        <AdminStatCard icon="🤝" value={mitra.length}      label="Mitra Kerjasama"  color="navy"   />
       </div>
 
       <div className="smk-admin-dashboard-grid">
@@ -86,9 +82,7 @@ export default function AdminDashboardPage() {
                 <div className="smk-admin-info-dot" />
                 <div>
                   <div className="smk-admin-info-text">Backend NestJS terhubung</div>
-                  <div className="smk-admin-info-sub">
-                    API: <code>http://localhost:3000/api</code>
-                  </div>
+                  <div className="smk-admin-info-sub">API: <code>http://localhost:3000/api</code></div>
                 </div>
               </div>
               <div className="smk-admin-info-item">
@@ -108,11 +102,7 @@ export default function AdminDashboardPage() {
               <div className="smk-admin-info-item">
                 <div className="smk-admin-info-dot" />
                 <div>
-                  <NavLink
-                    to="/"
-                    target="_blank"
-                    style={{ color: "var(--blue)", fontWeight: 600 }}
-                  >
+                  <NavLink to="/" target="_blank" style={{ color: "var(--blue)", fontWeight: 600 }}>
                     🌐 Lihat halaman website →
                   </NavLink>
                   <div className="smk-admin-info-sub">Perubahan langsung terlihat</div>

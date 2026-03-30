@@ -1,6 +1,7 @@
+// src/store.js
 import { configureStore } from "@reduxjs/toolkit";
 
-// PROFIL
+// PROFIL reducers
 import {
   sejarahIdentitasReducer,
   visiMisiReducer,
@@ -12,21 +13,31 @@ import {
   profilLoadingReducer,
 } from "./features/profil/states/reducer";
 
-// BERITA
-import beritaReducer from "./features/berita/states/reducer";
+// BERITA reducers (named exports, fixed)
+import {
+  beritaReducer,
+  agendaReducer,
+  pengumumanReducer,
+  beritaLoadingReducer,
+} from "./features/berita/states/reducer";
 
 const store = configureStore({
   reducer: {
-    sejarahIdentitas: sejarahIdentitasReducer,
-    visiMisi: visiMisiReducer,
+    // Profil
+    sejarahIdentitas:   sejarahIdentitasReducer,
+    visiMisi:           visiMisiReducer,
     strukturOrganisasi: strukturOrganisasiReducer,
-    fasilitas: fasilitasReducer,
-    prestasi: prestasiReducer,
-    programKeahlian: programKeahlianReducer,
-    mitraKerjasama: mitraKerjasamaReducer,
-    profilLoading: profilLoadingReducer,
+    fasilitas:          fasilitasReducer,
+    prestasi:           prestasiReducer,
+    programKeahlian:    programKeahlianReducer,
+    mitraKerjasama:     mitraKerjasamaReducer,
+    profilLoading:      profilLoadingReducer,
 
-    berita: beritaReducer,
+    // Berita
+    berita:        beritaReducer,
+    agenda:        agendaReducer,
+    pengumuman:    pengumumanReducer,
+    beritaLoading: beritaLoadingReducer,
   },
 });
 

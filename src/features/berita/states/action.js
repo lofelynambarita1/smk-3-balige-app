@@ -1,17 +1,18 @@
+// src/features/berita/states/action.js
 import beritaApi from "../api/beritaApi";
 import { showErrorDialog, showSuccessDialog } from "../../../helpers/toolsHelper";
 
 export const BeritaActionType = {
-  SET_BERITA:       "SET_BERITA",
-  SET_AGENDA:       "SET_AGENDA",
-  SET_PENGUMUMAN:   "SET_PENGUMUMAN",
+  SET_BERITA:         "SET_BERITA",
+  SET_AGENDA:         "SET_AGENDA",
+  SET_PENGUMUMAN:     "SET_PENGUMUMAN",
   SET_BERITA_LOADING: "SET_BERITA_LOADING",
 };
 
 // ── Sync creators ────────────────────────────────────────────
-export const setBerita       = (d) => ({ type: BeritaActionType.SET_BERITA,       payload: d });
-export const setAgenda       = (d) => ({ type: BeritaActionType.SET_AGENDA,       payload: d });
-export const setPengumuman   = (d) => ({ type: BeritaActionType.SET_PENGUMUMAN,   payload: d });
+export const setBerita        = (d) => ({ type: BeritaActionType.SET_BERITA,         payload: d });
+export const setAgenda        = (d) => ({ type: BeritaActionType.SET_AGENDA,         payload: d });
+export const setPengumuman    = (d) => ({ type: BeritaActionType.SET_PENGUMUMAN,     payload: d });
 export const setBeritaLoading = (s) => ({ type: BeritaActionType.SET_BERITA_LOADING, payload: s });
 
 // ── GET ──────────────────────────────────────────────────────
@@ -80,20 +81,20 @@ export function asyncDeleteBerita(id, cb) {
 }
 
 // ── AGENDA CRUD ──────────────────────────────────────────────
-export function asyncPostAgenda(judul, tanggal, lokasi, deskripsi, cb) {
+export function asyncPostAgenda(judul, tanggal, lokasi, cb) {
   return async (dispatch) => {
     try {
-      await beritaApi.postAgenda(judul, tanggal, lokasi, deskripsi);
+      await beritaApi.postAgenda(judul, tanggal, lokasi);
       showSuccessDialog("Agenda berhasil ditambahkan");
       dispatch(asyncGetAgenda());
       if (cb) cb();
     } catch (e) { showErrorDialog(e.message); }
   };
 }
-export function asyncPutAgenda(id, judul, tanggal, lokasi, deskripsi, cb) {
+export function asyncPutAgenda(id, judul, tanggal, lokasi, cb) {
   return async (dispatch) => {
     try {
-      await beritaApi.putAgenda(id, judul, tanggal, lokasi, deskripsi);
+      await beritaApi.putAgenda(id, judul, tanggal, lokasi);
       showSuccessDialog("Agenda berhasil diperbarui");
       dispatch(asyncGetAgenda());
       if (cb) cb();

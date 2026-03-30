@@ -10,19 +10,18 @@ import {
   asyncPostSejarahIdentitas,
   asyncPutSejarahIdentitas,
   asyncDeleteSejarahIdentitas,
-} from "../../berita/states/action";
+} from "../../profil/states/action";
 
 export function AdminSejarahPage() {
   const dispatch = useDispatch();
-  const data     = useSelector((s) => s.sejarahIdentitas);
-  const loading  = useSelector((s) => s.profilLoading);
+  const data     = useSelector((s) => s.sejarahIdentitas || []);
+  const loading  = useSelector((s) => s.profilLoading    || false);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editItem, setEditItem]   = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const [tahun,     setTahun]     = useInput("");
-  const [deskripsi, setDeskripsi] = useInput("");
+  const [modalOpen,   setModalOpen]   = useState(false);
+  const [editItem,    setEditItem]    = useState(null);
+  const [submitting,  setSubmitting]  = useState(false);
+  const [tahun,       setTahun]       = useInput("");
+  const [deskripsi,   setDeskripsi]   = useInput("");
 
   useEffect(() => { dispatch(asyncGetSejarahIdentitas()); }, [dispatch]);
 
