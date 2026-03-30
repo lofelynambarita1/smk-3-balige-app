@@ -10,7 +10,7 @@ import {
   asyncPostSejarahIdentitas,
   asyncPutSejarahIdentitas,
   asyncDeleteSejarahIdentitas,
-} from "../../profil/states/action";
+} from "../../berita/states/action";
 
 export function AdminSejarahPage() {
   const dispatch = useDispatch();

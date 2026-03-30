@@ -1,45 +1,52 @@
-// src/features/admin/pages/AdminDashboardPage.jsx
+// src/features/admin/pages/AdminDashboardPage.jsx — UPDATED
+// Menambahkan Berita & Informasi ke quick actions dan stats
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminStatCard } from "../components/AdminComponents";
-import { asyncLoadAllProfilData } from "../../profil/states/action";
+import { asyncLoadAllProfilData } from "../../berita/states/action";
+import { asyncLoadAllBeritaData } from "../../berita/states/action";
 
 const quickActions = [
+  { to: "/admin/berita",    icon: "📰", label: "Berita & Informasi", highlight: true },
   { to: "/admin/sejarah",   icon: "📜", label: "Sejarah & Identitas" },
-  { to: "/admin/visi-misi", icon: "🌟", label: "Visi & Misi"          },
-  { to: "/admin/struktur",  icon: "🏢", label: "Struktur Organisasi"  },
-  { to: "/admin/program",   icon: "🎓", label: "Program Keahlian"     },
-  { to: "/admin/fasilitas", icon: "🏫", label: "Fasilitas"            },
-  { to: "/admin/prestasi",  icon: "🏆", label: "Prestasi"             },
-  { to: "/admin/mitra",     icon: "🤝", label: "Mitra Kerjasama"      },
+  { to: "/admin/visi-misi", icon: "🌟", label: "Visi & Misi"         },
+  { to: "/admin/struktur",  icon: "🏢", label: "Struktur Organisasi" },
+  { to: "/admin/program",   icon: "🎓", label: "Program Keahlian"    },
+  { to: "/admin/fasilitas", icon: "🏫", label: "Fasilitas"           },
+  { to: "/admin/prestasi",  icon: "🏆", label: "Prestasi"            },
+  { to: "/admin/mitra",     icon: "🤝", label: "Mitra Kerjasama"     },
 ];
 
 export default function AdminDashboardPage() {
-  const dispatch = useDispatch();
-  const sejarah  = useSelector((s) => s.sejarahIdentitas);
-  const visiMisi = useSelector((s) => s.visiMisi);
-  const program  = useSelector((s) => s.programKeahlian);
-  const fasilitas= useSelector((s) => s.fasilitas);
-  const prestasi = useSelector((s) => s.prestasi);
-  const mitra    = useSelector((s) => s.mitraKerjasama);
-  const loading  = useSelector((s) => s.profilLoading);
+  const dispatch   = useDispatch();
+  const sejarah    = useSelector((s) => s.sejarahIdentitas);
+  const visiMisi   = useSelector((s) => s.visiMisi);
+  const program    = useSelector((s) => s.programKeahlian);
+  const fasilitas  = useSelector((s) => s.fasilitas);
+  const prestasi   = useSelector((s) => s.prestasi);
+  const mitra      = useSelector((s) => s.mitraKerjasama);
+  const berita     = useSelector((s) => s.berita);
+  const agenda     = useSelector((s) => s.agenda);
+  const pengumuman = useSelector((s) => s.pengumuman);
+  const loading    = useSelector((s) => s.profilLoading);
 
   useEffect(() => {
     dispatch(asyncLoadAllProfilData());
+    dispatch(asyncLoadAllBeritaData());
   }, [dispatch]);
 
   return (
     <AdminLayout title="Dashboard">
       {/* STATS */}
       <div className="smk-admin-stats-row">
-        <AdminStatCard icon="📜" value={sejarah.length}  label="Sejarah & Identitas" color="blue"   />
-        <AdminStatCard icon="🌟" value={visiMisi.length} label="Visi & Misi"          color="teal"   />
-        <AdminStatCard icon="🎓" value={program.length}  label="Program Keahlian"     color="purple" />
-        <AdminStatCard icon="🏫" value={fasilitas.length}label="Fasilitas"            color="orange" />
-        <AdminStatCard icon="🏆" value={prestasi.length} label="Prestasi"             color="gold"   />
-        <AdminStatCard icon="🤝" value={mitra.length}    label="Mitra Kerjasama"      color="navy"   />
+        <AdminStatCard icon="📰" value={berita.length}    label="Total Berita"        color="blue"   />
+        <AdminStatCard icon="📅" value={agenda.length}    label="Agenda"              color="teal"   />
+        <AdminStatCard icon="📢" value={pengumuman.length}label="Pengumuman"           color="purple" />
+        <AdminStatCard icon="🎓" value={program.length}   label="Program Keahlian"    color="orange" />
+        <AdminStatCard icon="🏆" value={prestasi.length}  label="Prestasi"            color="gold"   />
+        <AdminStatCard icon="🤝" value={mitra.length}     label="Mitra Kerjasama"     color="navy"   />
       </div>
 
       <div className="smk-admin-dashboard-grid">
@@ -54,7 +61,12 @@ export default function AdminDashboardPage() {
           <div className="smk-admin-card-body">
             <div className="smk-admin-quick-grid">
               {quickActions.map((q) => (
-                <NavLink key={q.to} to={q.to} className="smk-admin-quick-item">
+                <NavLink
+                  key={q.to}
+                  to={q.to}
+                  className="smk-admin-quick-item"
+                  style={q.highlight ? { borderColor: "#0f2244", color: "#0f2244" } : {}}
+                >
                   <span className="smk-admin-quick-icon">{q.icon}</span>
                   <span>{q.label}</span>
                 </NavLink>
@@ -89,14 +101,18 @@ export default function AdminDashboardPage() {
               <div className="smk-admin-info-item">
                 <div className="smk-admin-info-dot smk-info-gold" />
                 <div>
-                  <div className="smk-admin-info-text">Upload file tersedia</div>
-                  <div className="smk-admin-info-sub">Fasilitas · Struktur · Mitra</div>
+                  <div className="smk-admin-info-text">Modul Berita & Informasi</div>
+                  <div className="smk-admin-info-sub">Berita · Agenda · Pengumuman</div>
                 </div>
               </div>
               <div className="smk-admin-info-item">
                 <div className="smk-admin-info-dot" />
                 <div>
-                  <NavLink to="/" target="_blank" style={{ color: "var(--blue)", fontWeight: 600 }}>
+                  <NavLink
+                    to="/"
+                    target="_blank"
+                    style={{ color: "var(--blue)", fontWeight: 600 }}
+                  >
                     🌐 Lihat halaman website →
                   </NavLink>
                   <div className="smk-admin-info-sub">Perubahan langsung terlihat</div>

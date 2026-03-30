@@ -1,4 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
+
+// PROFIL
 import {
   sejarahIdentitasReducer,
   visiMisiReducer,
@@ -10,6 +12,9 @@ import {
   profilLoadingReducer,
 } from "./features/profil/states/reducer";
 
+// BERITA
+import beritaReducer from "./features/berita/states/reducer";
+
 const store = configureStore({
   reducer: {
     sejarahIdentitas: sejarahIdentitasReducer,
@@ -20,6 +25,8 @@ const store = configureStore({
     programKeahlian: programKeahlianReducer,
     mitraKerjasama: mitraKerjasamaReducer,
     profilLoading: profilLoadingReducer,
+
+    berita: beritaReducer,
   },
 });
 

@@ -124,10 +124,10 @@ const beritaStatis = [
 export default function BerandaPage() {
   const dispatch = useDispatch();
 
-  const visiMisi = useSelector((s) => s.visiMisi);
-  const sejarahIdentitas = useSelector((s) => s.sejarahIdentitas);
-  const programKeahlian = useSelector((s) => s.programKeahlian);
-  const mitraKerjasama = useSelector((s) => s.mitraKerjasama);
+  const visiMisi = useSelector((s) => s.visiMisi) || [];
+  const sejarahIdentitas = useSelector((s) => s.sejarahIdentitas) || [];
+  const programKeahlian = useSelector((s) => s.programKeahlian) || [];
+  const mitraKerjasama = useSelector((s) => s.mitraKerjasama) || [];
 
   useEffect(() => {
     dispatch(asyncLoadAllProfilData());

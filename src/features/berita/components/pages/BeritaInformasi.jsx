@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import ProfilLayout from "../layouts/ProfilLayout";
+import ProfilLayout from "../../../profil/layouts/ProfilLayout";
 import "./BeritaPage.css";
 
 // ── Hook: detect kapan elemen masuk viewport ──
