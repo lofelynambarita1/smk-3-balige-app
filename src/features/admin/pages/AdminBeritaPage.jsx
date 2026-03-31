@@ -30,49 +30,22 @@ import {
   asyncLoadAllBeritaData,
 } from "../../berita/states/action";
 
-// ── Helpers ───────────────────────────────────────────────────
-const KATEGORI_OPTIONS = [
-  { value: "AKADEMIK",    label: "📚 Akademik"     },
-  { value: "PRESTASI",    label: "🏆 Prestasi"     },
-  { value: "KEGIATAN",    label: "📅 Kegiatan"     },
-  { value: "PENGUMUMAN",  label: "📢 Pengumuman"   },
-  { value: "KABAR",       label: "📰 Kabar Sekolah"},
-];
-
-const KATEGORI_COLOR = {
-  AKADEMIK:   "#F59E0B",
-  PRESTASI:   "#10B981",
-  KEGIATAN:   "#3B82F6",
-  PENGUMUMAN: "#8B5CF6",
-  KABAR:      "#EF4444",
-};
-
-function KategoriBadge({ kategori }) {
-  const color = KATEGORI_COLOR[kategori?.toUpperCase()] || "#6B7280";
-  const label = KATEGORI_OPTIONS.find((k) => k.value === kategori?.toUpperCase())?.label || kategori;
-  return (
-    <span style={{
-      display: "inline-flex", alignItems: "center",
-      fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20,
-      background: color + "22", color,
-    }}>
-      {label}
-    </span>
-  );
-}
-
+// ── Utility ───────────────────────────────────────────────────────────────────
 function formatTgl(str) {
   if (!str) return "—";
   try {
-    return new Date(str).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(str).toLocaleDateString("id-ID", {
+      day: "2-digit", month: "short", year: "numeric",
+    });
   } catch { return str; }
 }
 
-// ════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
 // MAIN PAGE
-// ════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
 export default function AdminBeritaPage() {
   const dispatch   = useDispatch();
+  // Redux state keys defined in store.js
   const berita     = useSelector((s) => s.berita     || []);
   const agenda     = useSelector((s) => s.agenda     || []);
   const pengumuman = useSelector((s) => s.pengumuman || []);
@@ -82,21 +55,21 @@ export default function AdminBeritaPage() {
   useEffect(() => { dispatch(asyncLoadAllBeritaData()); }, [dispatch]);
 
   const tabs = [
-    { key: "berita",     icon: "📰", label: "Berita Terbaru",  count: berita.length     },
-    { key: "pengumuman", icon: "📢", label: "Pengumuman",      count: pengumuman.length  },
-    { key: "agenda",     icon: "📅", label: "Agenda Sekolah",  count: agenda.length      },
+    { key: "berita",     icon: "📰", label: "Berita Terbaru",  count: berita.length      },
+    { key: "pengumuman", icon: "📢", label: "Pengumuman",      count: pengumuman.length   },
+    { key: "agenda",     icon: "📅", label: "Agenda Sekolah",  count: agenda.length       },
   ];
 
   return (
     <AdminLayout title="Berita & Informasi">
-      {/* STATS */}
+      {/* ── STATS ─────────────────────────────────────────────────────────── */}
       <div className="smk-admin-stats-row" style={{ marginBottom: 24 }}>
-        <AdminStatCard icon="📰" value={berita.length}     label="Total Berita"    color="blue"   />
-        <AdminStatCard icon="📢" value={pengumuman.length}  label="Pengumuman"      color="purple" />
-        <AdminStatCard icon="📅" value={agenda.length}      label="Agenda Sekolah"  color="teal"   />
+        <AdminStatCard icon="📰" value={berita.length}     label="Total Berita"   color="blue"   />
+        <AdminStatCard icon="📢" value={pengumuman.length}  label="Pengumuman"     color="purple" />
+        <AdminStatCard icon="📅" value={agenda.length}      label="Agenda Sekolah" color="teal"   />
       </div>
 
-      {/* TABS */}
+      {/* ── TABS ──────────────────────────────────────────────────────────── */}
       <div className="smk-admin-tab-nav">
         {tabs.map((t) => (
           <button
@@ -111,76 +84,82 @@ export default function AdminBeritaPage() {
         ))}
       </div>
 
-      {/* CONTENT */}
-      {activeTab === "berita"     && (
-        <BeritaTab data={berita} loading={loading} dispatch={dispatch} />
-      )}
-      {activeTab === "pengumuman" && (
-        <PengumumanTab data={pengumuman} loading={loading} dispatch={dispatch} />
-      )}
-      {activeTab === "agenda"     && (
-        <AgendaTab data={agenda} loading={loading} dispatch={dispatch} />
-      )}
+      {/* ── CONTENT ───────────────────────────────────────────────────────── */}
+      {activeTab === "berita"     && <BeritaTab     data={berita}     loading={loading} dispatch={dispatch} />}
+      {activeTab === "pengumuman" && <PengumumanTab data={pengumuman} loading={loading} dispatch={dispatch} />}
+      {activeTab === "agenda"     && <AgendaTab     data={agenda}     loading={loading} dispatch={dispatch} />}
     </AdminLayout>
   );
 }
 
-// ════════════════════════════════════════════════════════════
-// TAB BERITA
-// ════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
+// TAB: BERITA
+// Backend table : news
+// Response keys : id, title, content, description, excerpt, slug,
+//                 imageUrl, author, views, isFeatured, isActive, createdAt
+// ═════════════════════════════════════════════════════════════════════════════
 function BeritaTab({ data, loading, dispatch }) {
-  const [modalOpen, setModalOpen]   = useState(false);
-  const [editItem, setEditItem]     = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [file, setFile]             = useState(null);
-  const [preview, setPreview]       = useState(null);
-  const [judul, setJudul]           = useInput("");
-  const [isi, setIsi]               = useInput("");
-  const [tanggal, setTanggal]       = useInput("");
-  const [kategori, setKategori]     = useState("AKADEMIK");
-  const [search, setSearch]         = useState("");
+  const [modalOpen,   setModalOpen]   = useState(false);
+  const [editItem,    setEditItem]    = useState(null);
+  const [submitting,  setSubmitting]  = useState(false);
+  const [file,        setFile]        = useState(null);
+  const [preview,     setPreview]     = useState(null);
+  const [title,       setTitle]       = useInput("");
+  const [content,     setContent]     = useInput("");
+  const [description, setDescription] = useInput("");
+  const [search,      setSearch]      = useState("");
 
-  const filtered = data.filter((b) =>
-    b.judul?.toLowerCase().includes(search.toLowerCase()) ||
-    b.kategori?.toLowerCase().includes(search.toLowerCase())
-  );
+  // ── Filter by title or description ──────────────────────────────────────
+  const filtered = data.filter((b) => {
+    const q = search.toLowerCase();
+    return (
+      (b.title       || "").toLowerCase().includes(q) ||
+      (b.description || "").toLowerCase().includes(q) ||
+      (b.excerpt     || "").toLowerCase().includes(q)
+    );
+  });
 
+  // ── Open add modal ───────────────────────────────────────────────────────
   const openAdd = () => {
     setEditItem(null);
-    setJudul({ target: { value: "" } });
-    setIsi({ target: { value: "" } });
-    setTanggal({ target: { value: new Date().toISOString().slice(0, 10) } });
-    setKategori("AKADEMIK");
-    setFile(null); setPreview(null);
+    setTitle({       target: { value: "" } });
+    setContent({     target: { value: "" } });
+    setDescription({ target: { value: "" } });
+    setFile(null);
+    setPreview(null);
     setModalOpen(true);
   };
 
+  // ── Open edit modal ──────────────────────────────────────────────────────
   const openEdit = (item) => {
     setEditItem(item);
-    setJudul({ target: { value: item.judul } });
-    setIsi({ target: { value: item.isi || "" } });
-    setTanggal({ target: { value: item.tanggal?.slice(0, 10) || "" } });
-    setKategori(item.kategori || "AKADEMIK");
+    setTitle({       target: { value: item.title       || "" } });
+    setContent({     target: { value: item.content     || "" } });
+    setDescription({ target: { value: item.description || item.excerpt || "" } });
     setFile(null);
-    setPreview(item.gambar ? mediaUrl(item.gambar) : null);
+    setPreview(item.imageUrl ? mediaUrl(item.imageUrl) : null);
     setModalOpen(true);
   };
 
-  const handleFile = (f) => { setFile(f); if (f) setPreview(URL.createObjectURL(f)); };
+  const handleFile = (f) => {
+    setFile(f);
+    if (f) setPreview(URL.createObjectURL(f));
+  };
 
   const handleSubmit = () => {
-    if (!judul.trim()) return;
+    if (!title.trim()) return;
     setSubmitting(true);
     const cb = () => { setModalOpen(false); setSubmitting(false); };
     if (editItem)
-      dispatch(asyncPutBerita(editItem.id, judul, isi, kategori, tanggal, file, cb));
+      dispatch(asyncPutBerita(editItem.id, title, content, description, file, cb));
     else
-      dispatch(asyncPostBerita(judul, isi, kategori, tanggal, file, cb));
-    setTimeout(() => setSubmitting(false), 5000);
+      dispatch(asyncPostBerita(title, content, description, file, cb));
+    // safety timeout
+    setTimeout(() => setSubmitting(false), 8000);
   };
 
   const handleDelete = async (item) => {
-    const r = await showConfirmDialog(`Hapus berita "${item.judul}"?`);
+    const r = await showConfirmDialog(`Hapus berita "${item.title}"?`);
     if (r.isConfirmed) dispatch(asyncDeleteBerita(item.id));
   };
 
@@ -191,39 +170,66 @@ function BeritaTab({ data, loading, dispatch }) {
         subtitle="Kelola semua artikel berita sekolah"
         onAdd={openAdd}
       >
+        {/* ── Search ── */}
         <div style={{ marginBottom: 16 }}>
           <input
             className="smk-form-input"
-            placeholder="🔍 Cari judul atau kategori..."
+            placeholder="🔍 Cari judul atau deskripsi..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ maxWidth: 360 }}
+            style={{ maxWidth: 380 }}
           />
         </div>
+
+        {/* ── Table ── */}
         <AdminTable
-          columns={["Gambar", "Judul", "Kategori", "Tanggal", "Pratinjau Isi", "Aksi"]}
+          columns={["Gambar", "Judul", "Deskripsi / Ringkasan", "Tanggal", "Aksi"]}
           loading={loading}
-          empty={!filtered.length}
+          empty={filtered.length === 0}
         >
           {filtered.map((item) => (
             <tr key={item.id}>
-              <td><AdminThumb src={mediaUrl(item.gambar)} fallback="📰" /></td>
-              <td><strong style={{ fontSize: 13 }}>{item.judul}</strong></td>
-              <td><KategoriBadge kategori={item.kategori} /></td>
-              <td style={{ fontSize: 12, color: "#6b7280", whiteSpace: "nowrap" }}>
-                📅 {formatTgl(item.tanggal)}
-              </td>
-              <td className="smk-admin-td-truncate" style={{ maxWidth: 200, fontSize: 12, color: "#9ca3af" }}>
-                {item.isi?.slice(0, 70)}
-              </td>
+              {/* Gambar */}
               <td>
-                <ActionButtons onEdit={() => openEdit(item)} onDelete={() => handleDelete(item)} />
+                <AdminThumb src={mediaUrl(item.imageUrl)} fallback="📰" />
+              </td>
+
+              {/* Judul */}
+              <td>
+                <strong style={{ fontSize: 13 }}>{item.title}</strong>
+                {item.author && (
+                  <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+                    ✍️ {item.author}
+                  </div>
+                )}
+              </td>
+
+              {/* Deskripsi */}
+              <td
+                className="smk-admin-td-truncate"
+                style={{ maxWidth: 240, fontSize: 12, color: "#9ca3af" }}
+              >
+                {(item.description || item.excerpt || item.content || "").slice(0, 90)}
+              </td>
+
+              {/* Tanggal */}
+              <td style={{ fontSize: 12, color: "#6b7280", whiteSpace: "nowrap" }}>
+                📅 {formatTgl(item.createdAt)}
+              </td>
+
+              {/* Aksi */}
+              <td>
+                <ActionButtons
+                  onEdit={() => openEdit(item)}
+                  onDelete={() => handleDelete(item)}
+                />
               </td>
             </tr>
           ))}
         </AdminTable>
       </AdminCard>
 
+      {/* ── Modal Add / Edit ── */}
       <AdminModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -233,69 +239,85 @@ function BeritaTab({ data, loading, dispatch }) {
       >
         <div className="smk-form-group">
           <label>Judul Berita <span style={{ color: "red" }}>*</span></label>
-          <input className="smk-form-input" type="text" value={judul} onChange={setJudul}
-            placeholder="contoh: SMK N3 Balige Raih Juara Nasional" />
+          <input
+            className="smk-form-input"
+            type="text"
+            value={title}
+            onChange={setTitle}
+            placeholder="contoh: SMK N3 Balige Raih Juara Nasional"
+          />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <div className="smk-form-group">
-            <label>Kategori</label>
-            <select className="smk-form-input" value={kategori} onChange={(e) => setKategori(e.target.value)}>
-              {KATEGORI_OPTIONS.map((k) => (
-                <option key={k.value} value={k.value}>{k.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="smk-form-group">
-            <label>Tanggal</label>
-            <input className="smk-form-input" type="date" value={tanggal} onChange={setTanggal} />
-          </div>
-        </div>
+
         <div className="smk-form-group">
-          <label>Isi / Ringkasan Berita</label>
-          <textarea className="smk-form-input" rows={5} value={isi} onChange={setIsi}
-            placeholder="Tulis isi atau ringkasan berita di sini..." />
+          <label>Deskripsi / Ringkasan</label>
+          <input
+            className="smk-form-input"
+            type="text"
+            value={description}
+            onChange={setDescription}
+            placeholder="Ringkasan singkat (1–2 kalimat)"
+          />
         </div>
-        <UploadArea id="beritaGambar" onFile={handleFile} preview={preview} label="Pilih gambar berita (opsional)" />
+
+        <div className="smk-form-group">
+          <label>Isi Berita</label>
+          <textarea
+            className="smk-form-input"
+            rows={5}
+            value={content}
+            onChange={setContent}
+            placeholder="Tulis isi berita lengkap di sini..."
+          />
+        </div>
+
+        <UploadArea
+          id="beritaGambar"
+          onFile={handleFile}
+          preview={preview}
+          label="Pilih gambar berita (opsional)"
+        />
       </AdminModal>
     </>
   );
 }
 
-// ════════════════════════════════════════════════════════════
-// TAB PENGUMUMAN
-// ════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
+// TAB: PENGUMUMAN
+// Backend table : announcements
+// Response keys : id, title, content, description, type, author, isActive, createdAt
+// ═════════════════════════════════════════════════════════════════════════════
 function PengumumanTab({ data, loading, dispatch }) {
-  const [modalOpen, setModalOpen]   = useState(false);
-  const [editItem, setEditItem]     = useState(null);
+  const [modalOpen,  setModalOpen]  = useState(false);
+  const [editItem,   setEditItem]   = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [judul, setJudul]           = useInput("");
-  const [isi, setIsi]               = useInput("");
+  const [title,      setTitle]      = useInput("");
+  const [content,    setContent]    = useInput("");
 
   const openAdd = () => {
     setEditItem(null);
-    setJudul({ target: { value: "" } });
-    setIsi({ target: { value: "" } });
+    setTitle({   target: { value: "" } });
+    setContent({ target: { value: "" } });
     setModalOpen(true);
   };
 
   const openEdit = (item) => {
     setEditItem(item);
-    setJudul({ target: { value: item.judul } });
-    setIsi({ target: { value: item.isi || "" } });
+    setTitle({   target: { value: item.title   || "" } });
+    setContent({ target: { value: item.content || item.description || "" } });
     setModalOpen(true);
   };
 
   const handleSubmit = () => {
-    if (!judul.trim()) return;
+    if (!title.trim()) return;
     setSubmitting(true);
     const cb = () => { setModalOpen(false); setSubmitting(false); };
-    if (editItem) dispatch(asyncPutPengumuman(editItem.id, judul, isi, cb));
-    else          dispatch(asyncPostPengumuman(judul, isi, cb));
-    setTimeout(() => setSubmitting(false), 3000);
+    if (editItem) dispatch(asyncPutPengumuman(editItem.id, title, content, cb));
+    else          dispatch(asyncPostPengumuman(title, content, cb));
+    setTimeout(() => setSubmitting(false), 5000);
   };
 
   const handleDelete = async (item) => {
-    const r = await showConfirmDialog(`Hapus pengumuman "${item.judul}"?`);
+    const r = await showConfirmDialog(`Hapus pengumuman "${item.title}"?`);
     if (r.isConfirmed) dispatch(asyncDeletePengumuman(item.id));
   };
 
@@ -309,16 +331,17 @@ function PengumumanTab({ data, loading, dispatch }) {
         <AdminTable
           columns={["#", "Judul Pengumuman", "Isi / Keterangan", "Aksi"]}
           loading={loading}
-          empty={!data.length}
+          empty={data.length === 0}
         >
           {data.map((item, idx) => (
             <tr key={item.id}>
-              <td>
-                <div className="smk-admin-peng-number">{idx + 1}</div>
-              </td>
-              <td><strong>{item.judul}</strong></td>
-              <td className="smk-admin-td-truncate" style={{ maxWidth: 320, fontSize: 13, color: "#6b7280" }}>
-                {item.isi?.slice(0, 100)}
+              <td><div className="smk-admin-peng-number">{idx + 1}</div></td>
+              <td><strong>{item.title}</strong></td>
+              <td
+                className="smk-admin-td-truncate"
+                style={{ maxWidth: 320, fontSize: 13, color: "#6b7280" }}
+              >
+                {(item.content || item.description || "").slice(0, 100)}
               </td>
               <td>
                 <ActionButtons onEdit={() => openEdit(item)} onDelete={() => handleDelete(item)} />
@@ -337,61 +360,77 @@ function PengumumanTab({ data, loading, dispatch }) {
       >
         <div className="smk-form-group">
           <label>Judul Pengumuman <span style={{ color: "red" }}>*</span></label>
-          <input className="smk-form-input" type="text" value={judul} onChange={setJudul}
-            placeholder="contoh: Informasi PPDB Tahun Ajaran 2026/2027" />
+          <input
+            className="smk-form-input"
+            type="text"
+            value={title}
+            onChange={setTitle}
+            placeholder="contoh: Informasi PPDB Tahun Ajaran 2026/2027"
+          />
         </div>
         <div className="smk-form-group">
           <label>Isi Pengumuman</label>
-          <textarea className="smk-form-input" rows={5} value={isi} onChange={setIsi}
-            placeholder="Tulis isi pengumuman secara lengkap..." />
+          <textarea
+            className="smk-form-input"
+            rows={5}
+            value={content}
+            onChange={setContent}
+            placeholder="Tulis isi pengumuman secara lengkap..."
+          />
         </div>
       </AdminModal>
     </>
   );
 }
 
-// ════════════════════════════════════════════════════════════
-// TAB AGENDA
-// ════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
+// TAB: AGENDA
+// Backend table : schedules
+// Response keys : id, title, description, date, startTime, endTime,
+//                 location, participants, category, imageUrl, isActive, createdAt
+// ═════════════════════════════════════════════════════════════════════════════
 function AgendaTab({ data, loading, dispatch }) {
-  const [modalOpen, setModalOpen]   = useState(false);
-  const [editItem, setEditItem]     = useState(null);
+  const [modalOpen,  setModalOpen]  = useState(false);
+  const [editItem,   setEditItem]   = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [judul, setJudul]           = useInput("");
-  const [tanggal, setTanggal]       = useInput("");
-  const [lokasi, setLokasi]         = useInput("");
+  const [title,      setTitle]      = useInput("");
+  const [date,       setDate]       = useInput("");
+  const [location,   setLocation]   = useInput("");
 
-  const sorted = [...data].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+  // Sort by date ascending
+  const sorted = [...data].sort(
+    (a, b) => new Date(a.date || 0) - new Date(b.date || 0)
+  );
 
   const openAdd = () => {
     setEditItem(null);
-    setJudul({ target: { value: "" } });
-    setTanggal({ target: { value: new Date().toISOString().slice(0, 10) } });
-    setLokasi({ target: { value: "" } });
+    setTitle({    target: { value: "" } });
+    setDate({     target: { value: new Date().toISOString().slice(0, 10) } });
+    setLocation({ target: { value: "" } });
     setModalOpen(true);
   };
 
   const openEdit = (item) => {
     setEditItem(item);
-    setJudul({ target: { value: item.judul } });
-    setTanggal({ target: { value: item.tanggal?.slice(0, 10) || "" } });
-    setLokasi({ target: { value: item.lokasi || "" } });
+    setTitle({    target: { value: item.title    || "" } });
+    setDate({     target: { value: (item.date    || "").slice(0, 10) } });
+    setLocation({ target: { value: item.location || "" } });
     setModalOpen(true);
   };
 
   const handleSubmit = () => {
-    if (!judul.trim() || !tanggal) return;
+    if (!title.trim() || !date) return;
     setSubmitting(true);
     const cb = () => { setModalOpen(false); setSubmitting(false); };
     if (editItem)
-      dispatch(asyncPutAgenda(editItem.id, judul, tanggal, lokasi, cb));
+      dispatch(asyncPutAgenda(editItem.id, title, date, location, cb));
     else
-      dispatch(asyncPostAgenda(judul, tanggal, lokasi, cb));
-    setTimeout(() => setSubmitting(false), 3000);
+      dispatch(asyncPostAgenda(title, date, location, cb));
+    setTimeout(() => setSubmitting(false), 5000);
   };
 
   const handleDelete = async (item) => {
-    const r = await showConfirmDialog(`Hapus agenda "${item.judul}"?`);
+    const r = await showConfirmDialog(`Hapus agenda "${item.title}"?`);
     if (r.isConfirmed) dispatch(asyncDeleteAgenda(item.id));
   };
 
@@ -405,15 +444,17 @@ function AgendaTab({ data, loading, dispatch }) {
         <AdminTable
           columns={["Tanggal", "Judul Agenda", "Lokasi", "Aksi"]}
           loading={loading}
-          empty={!sorted.length}
+          empty={sorted.length === 0}
         >
           {sorted.map((item) => {
-            const d    = item.tanggal ? new Date(item.tanggal) : null;
+            const d    = item.date ? new Date(item.date) : null;
             const tgl  = d ? String(d.getDate()).padStart(2, "0") : "—";
-            const bln  = d ? d.toLocaleDateString("id-ID", { month: "short" }).toUpperCase() : "—";
+            const bln  = d
+              ? d.toLocaleDateString("id-ID", { month: "short" }).toUpperCase()
+              : "—";
             const past = d && d < new Date();
             return (
-              <tr key={item.id} style={{ opacity: past ? 0.6 : 1 }}>
+              <tr key={item.id} style={{ opacity: past ? 0.65 : 1 }}>
                 <td>
                   <div className="smk-admin-agenda-date-pill">
                     <span className="smk-admin-agenda-day">{tgl}</span>
@@ -421,15 +462,18 @@ function AgendaTab({ data, loading, dispatch }) {
                   </div>
                 </td>
                 <td>
-                  <strong>{item.judul}</strong>
+                  <strong>{item.title}</strong>
                   {past && (
-                    <span className="smk-admin-badge smk-admin-badge-silver" style={{ marginLeft: 8, fontSize: 10 }}>
+                    <span
+                      className="smk-admin-badge smk-admin-badge-silver"
+                      style={{ marginLeft: 8, fontSize: 10 }}
+                    >
                       Selesai
                     </span>
                   )}
                 </td>
                 <td style={{ fontSize: 13, color: "#6b7280" }}>
-                  {item.lokasi ? `📍 ${item.lokasi}` : "—"}
+                  {item.location ? `📍 ${item.location}` : "—"}
                 </td>
                 <td>
                   <ActionButtons onEdit={() => openEdit(item)} onDelete={() => handleDelete(item)} />
@@ -449,18 +493,33 @@ function AgendaTab({ data, loading, dispatch }) {
       >
         <div className="smk-form-group">
           <label>Judul Agenda <span style={{ color: "red" }}>*</span></label>
-          <input className="smk-form-input" type="text" value={judul} onChange={setJudul}
-            placeholder="contoh: Rapat Wali Murid Kelas X" />
+          <input
+            className="smk-form-input"
+            type="text"
+            value={title}
+            onChange={setTitle}
+            placeholder="contoh: Rapat Wali Murid Kelas X"
+          />
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div className="smk-form-group">
             <label>Tanggal <span style={{ color: "red" }}>*</span></label>
-            <input className="smk-form-input" type="date" value={tanggal} onChange={setTanggal} />
+            <input
+              className="smk-form-input"
+              type="date"
+              value={date}
+              onChange={setDate}
+            />
           </div>
           <div className="smk-form-group">
             <label>Lokasi / Keterangan</label>
-            <input className="smk-form-input" type="text" value={lokasi} onChange={setLokasi}
-              placeholder="contoh: Aula SMK, 08.00 WIB" />
+            <input
+              className="smk-form-input"
+              type="text"
+              value={location}
+              onChange={setLocation}
+              placeholder="contoh: Aula SMK, 08.00 WIB"
+            />
           </div>
         </div>
       </AdminModal>
