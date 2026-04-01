@@ -8,14 +8,35 @@ function extractArray(raw) {
   return [];
 }
 
-// ─── BERITA (/api/berita) ─────────────────────────────────────────────────────
-// DB table : news
-// Fields   : title, content, description, excerpt, slug, imageUrl,
-//            author, views, isFeatured, isActive, createdAt, updatedAt, categoryId
-// GET returns paginated: { data: [...], total, page, limit }
+// ─── Helper: coba request, kembalikan { ok, data } atau { ok, error } ────────
+async function tryRequest(url, method, fd) {
+  const res = await apiHelper.fetchData(url, { method, body: fd });
+  if (res.ok) return { ok: true, data: await res.json() };
+  const text = await res.text();
+  let errMsg = "Gagal";
+  try { errMsg = JSON.parse(text)?.message || errMsg; } catch { errMsg = text || errMsg; }
+  return { ok: false, error: errMsg };
+}
 
+// ─── Helper: buat FormData dasar berita (tanpa file) ─────────────────────────
+function buildBeritaFd({ title, content, description, slug, forPut = false }) {
+  const fd = new FormData();
+  if (!forPut) {
+    fd.append("title", title);
+    fd.append("content", content || "");
+    fd.append("description", description || "");
+    fd.append("slug", slug || "");
+    fd.append("author", "Admin");
+  } else {
+    if (title)       fd.append("title", title);
+    if (content)     fd.append("content", content);
+    if (description) fd.append("description", description);
+  }
+  return fd;
+}
+
+// ─── BERITA (/api/berita) ─────────────────────────────────────────────────────
 async function getBerita() {
-  // fetch up to 200 items so admin always sees everything
   const res = await apiHelper.fetchData(`${BASE_URL}/berita?page=1&limit=200`, {
     method: "GET",
   });
@@ -24,58 +45,62 @@ async function getBerita() {
 }
 
 async function postBerita(title, content, description, imageFile) {
-  const fd = new FormData();
-  fd.append("title", title);
-  fd.append("content", content || "");
-  fd.append("description", description || "");
-  // slug is required by the backend — generate from title + timestamp
   const slug =
-    title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, "")
-      .trim()
-      .replace(/\s+/g, "-") +
+    title.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, "-") +
     "-" + Date.now();
-  fd.append("slug", slug);
-  fd.append("author", "Admin");
-  if (imageFile) fd.append("image", imageFile);
 
-  const res = await apiHelper.fetchData(`${BASE_URL}/berita`, {
-    method: "POST",
-    body: fd,
-  });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal menambah berita"); }
+  // Tanpa file — langsung kirim
+  if (!imageFile) {
+    const fd = buildBeritaFd({ title, content, description, slug });
+    const res = await apiHelper.fetchData(`${BASE_URL}/berita`, { method: "POST", body: fd });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal menambah berita"); }
+    return res.json();
+  }
+
+  // ✅ FIX: field name yang benar sesuai FileInterceptor('gambar') di backend
+  const fd = buildBeritaFd({ title, content, description, slug });
+  fd.append("gambar", imageFile);
+
+  const res = await apiHelper.fetchData(`${BASE_URL}/berita`, { method: "POST", body: fd });
+  if (!res.ok) {
+    const text = await res.text();
+    let errMsg = "Gagal menambah berita";
+    try { errMsg = JSON.parse(text)?.message || errMsg; } catch { errMsg = text || errMsg; }
+    throw new Error(errMsg);
+  }
   return res.json();
 }
 
 async function putBerita(id, title, content, description, imageFile) {
-  const fd = new FormData();
-  if (title)       fd.append("title", title);
-  if (content)     fd.append("content", content);
-  if (description) fd.append("description", description);
-  if (imageFile)   fd.append("image", imageFile);
+  // Tanpa file baru
+  if (!imageFile) {
+    const fd = buildBeritaFd({ title, content, description, forPut: true });
+    const res = await apiHelper.fetchData(`${BASE_URL}/berita/${id}`, { method: "PUT", body: fd });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal memperbarui berita"); }
+    return res.json();
+  }
 
-  const res = await apiHelper.fetchData(`${BASE_URL}/berita/${id}`, {
-    method: "PUT",
-    body: fd,
-  });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal memperbarui berita"); }
+  // ✅ FIX: field name yang benar sesuai FileInterceptor('gambar') di backend
+  const fd = buildBeritaFd({ title, content, description, forPut: true });
+  fd.append("gambar", imageFile);
+
+  const res = await apiHelper.fetchData(`${BASE_URL}/berita/${id}`, { method: "PUT", body: fd });
+  if (!res.ok) {
+    const text = await res.text();
+    let errMsg = "Gagal memperbarui berita";
+    try { errMsg = JSON.parse(text)?.message || errMsg; } catch { errMsg = text || errMsg; }
+    throw new Error(errMsg);
+  }
   return res.json();
 }
 
 async function deleteBerita(id) {
-  const res = await apiHelper.fetchData(`${BASE_URL}/berita/${id}`, {
-    method: "DELETE",
-  });
+  const res = await apiHelper.fetchData(`${BASE_URL}/berita/${id}`, { method: "DELETE" });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal menghapus berita"); }
   return res.json();
 }
 
 // ─── AGENDA (/api/agenda) ─────────────────────────────────────────────────────
-// DB table : schedules
-// Fields   : title, description, date, startTime, endTime,
-//            location, participants, category, imageUrl, isActive
-
 async function getAgenda() {
   const res = await apiHelper.fetchData(`${BASE_URL}/agenda`, { method: "GET" });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal memuat agenda"); }
@@ -85,7 +110,6 @@ async function getAgenda() {
 async function postAgenda(title, date, location) {
   const body = { title, date };
   if (location) body.location = location;
-
   const res = await apiHelper.fetchData(`${BASE_URL}/agenda`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -98,7 +122,6 @@ async function postAgenda(title, date, location) {
 async function putAgenda(id, title, date, location) {
   const body = { title, date };
   if (location) body.location = location;
-
   const res = await apiHelper.fetchData(`${BASE_URL}/agenda/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -109,17 +132,12 @@ async function putAgenda(id, title, date, location) {
 }
 
 async function deleteAgenda(id) {
-  const res = await apiHelper.fetchData(`${BASE_URL}/agenda/${id}`, {
-    method: "DELETE",
-  });
+  const res = await apiHelper.fetchData(`${BASE_URL}/agenda/${id}`, { method: "DELETE" });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal menghapus agenda"); }
   return res.json();
 }
 
 // ─── PENGUMUMAN (/api/pengumuman) ─────────────────────────────────────────────
-// DB table : announcements
-// Fields   : title, content, description, imageUrl, type, author, isActive, expiredAt
-
 async function getPengumuman() {
   const res = await apiHelper.fetchData(`${BASE_URL}/pengumuman`, { method: "GET" });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal memuat pengumuman"); }
@@ -147,9 +165,7 @@ async function putPengumuman(id, title, content) {
 }
 
 async function deletePengumuman(id) {
-  const res = await apiHelper.fetchData(`${BASE_URL}/pengumuman/${id}`, {
-    method: "DELETE",
-  });
+  const res = await apiHelper.fetchData(`${BASE_URL}/pengumuman/${id}`, { method: "DELETE" });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Gagal menghapus pengumuman"); }
   return res.json();
 }

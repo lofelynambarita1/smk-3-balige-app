@@ -45,7 +45,6 @@ function formatTgl(str) {
 // ═════════════════════════════════════════════════════════════════════════════
 export default function AdminBeritaPage() {
   const dispatch   = useDispatch();
-  // Redux state keys defined in store.js
   const berita     = useSelector((s) => s.berita     || []);
   const agenda     = useSelector((s) => s.agenda     || []);
   const pengumuman = useSelector((s) => s.pengumuman || []);
@@ -95,8 +94,7 @@ export default function AdminBeritaPage() {
 // ═════════════════════════════════════════════════════════════════════════════
 // TAB: BERITA
 // Backend table : news
-// Response keys : id, title, content, description, excerpt, slug,
-//                 imageUrl, author, views, isFeatured, isActive, createdAt
+// File field    : "imageUrl" (sesuai NestJS FileInterceptor di backend)
 // ═════════════════════════════════════════════════════════════════════════════
 function BeritaTab({ data, loading, dispatch }) {
   const [modalOpen,   setModalOpen]   = useState(false);
@@ -137,19 +135,44 @@ function BeritaTab({ data, loading, dispatch }) {
     setContent({     target: { value: item.content     || "" } });
     setDescription({ target: { value: item.description || item.excerpt || "" } });
     setFile(null);
+    // ✅ Tampilkan preview gambar existing dari backend
     setPreview(item.imageUrl ? mediaUrl(item.imageUrl) : null);
     setModalOpen(true);
   };
 
+  // ✅ Handle file baru dipilih user
   const handleFile = (f) => {
     setFile(f);
-    if (f) setPreview(URL.createObjectURL(f));
+    if (f) {
+      // Buat URL preview lokal dari file yang dipilih
+      const localUrl = URL.createObjectURL(f);
+      setPreview(localUrl);
+    }
+  };
+
+  // ✅ Bersihkan object URL saat modal ditutup agar tidak memory leak
+  const handleClose = () => {
+    if (file && preview && preview.startsWith("blob:")) {
+      URL.revokeObjectURL(preview);
+    }
+    setModalOpen(false);
+    setFile(null);
+    setPreview(null);
   };
 
   const handleSubmit = () => {
     if (!title.trim()) return;
     setSubmitting(true);
-    const cb = () => { setModalOpen(false); setSubmitting(false); };
+    const cb = () => {
+      // Bersihkan blob URL setelah submit
+      if (file && preview && preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+      setModalOpen(false);
+      setSubmitting(false);
+      setFile(null);
+      setPreview(null);
+    };
     if (editItem)
       dispatch(asyncPutBerita(editItem.id, title, content, description, file, cb));
     else
@@ -189,7 +212,7 @@ function BeritaTab({ data, loading, dispatch }) {
         >
           {filtered.map((item) => (
             <tr key={item.id}>
-              {/* Gambar */}
+              {/* ✅ Gambar dari backend ditampilkan via mediaUrl helper */}
               <td>
                 <AdminThumb src={mediaUrl(item.imageUrl)} fallback="📰" />
               </td>
@@ -232,7 +255,7 @@ function BeritaTab({ data, loading, dispatch }) {
       {/* ── Modal Add / Edit ── */}
       <AdminModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleClose}
         title={editItem ? "✏️ Edit Berita" : "➕ Tambah Berita"}
         onSubmit={handleSubmit}
         submitting={submitting}
@@ -270,12 +293,90 @@ function BeritaTab({ data, loading, dispatch }) {
           />
         </div>
 
-        <UploadArea
-          id="beritaGambar"
-          onFile={handleFile}
-          preview={preview}
-          label="Pilih gambar berita (opsional)"
-        />
+        {/* ✅ Upload area dengan preview gambar existing maupun baru */}
+        <div className="smk-form-group">
+          <label>Gambar Berita (opsional)</label>
+          <label htmlFor="beritaGambar" className="smk-upload-area">
+            <div style={{ fontSize: 28, marginBottom: 8 }}>🖼️</div>
+            <div>
+              <span style={{ color: "var(--blue, #3b82f6)", fontWeight: 600 }}>
+                {file ? "Ganti gambar" : "Klik untuk pilih gambar"}
+              </span>
+              {" "}atau drag &amp; drop
+            </div>
+            <div style={{ fontSize: 11, marginTop: 4, color: "#6b7280" }}>
+              PNG, JPG, WEBP — Maks 5MB
+            </div>
+            <input
+              type="file"
+              id="beritaGambar"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const f = e.target.files[0];
+                if (f) handleFile(f);
+                // Reset input agar bisa pilih file sama lagi jika diperlukan
+                e.target.value = "";
+              }}
+            />
+          </label>
+
+          {/* ✅ Preview: tampil gambar existing (dari server) atau gambar baru (blob) */}
+          {preview && (
+            <div style={{
+              marginTop: 12,
+              borderRadius: 8,
+              overflow: "hidden",
+              border: "1px solid #e2e8f0",
+              maxHeight: 200,
+              position: "relative",
+            }}>
+              <img
+                src={preview}
+                alt="preview"
+                style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }}
+                onError={(e) => {
+                  // Jika gambar existing gagal load (misal URL bermasalah), sembunyikan
+                  e.target.parentElement.style.display = "none";
+                }}
+              />
+              {/* Tombol hapus preview */}
+              <button
+                onClick={() => {
+                  if (file && preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+                  setFile(null);
+                  setPreview(editItem?.imageUrl ? mediaUrl(editItem.imageUrl) : null);
+                }}
+                style={{
+                  position: "absolute",
+                  top: 6,
+                  right: 6,
+                  background: "rgba(0,0,0,0.55)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: 26,
+                  height: 26,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                title="Hapus pilihan gambar baru"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Keterangan file yang dipilih */}
+          {file && (
+            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>
+              📎 File dipilih: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
+            </div>
+          )}
+        </div>
       </AdminModal>
     </>
   );
